@@ -1,5 +1,10 @@
 import { formatNames, SERVER_URL } from "../utilities/folder-utils";
-import { getData, renameFile } from "../utilities/fetch-utils";
+import {
+  deleteFile,
+  getData,
+  postJSON,
+  renameFile,
+} from "../utilities/fetch-utils";
 import { useCallback, useEffect, useState } from "react";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import ContextMenu from "../components/ContextMenu";
@@ -25,24 +30,30 @@ function Folder() {
 
   const handleOptionSelect = async (event) => {
     const { title } = event.target;
+    const fileType = hasContext.split(".")[1] || "";
+    let data, newName;
     switch (title) {
       case "info":
         return navigate(`info/${hasContext}`);
       case "show":
         return navigate(`${hasContext}`);
       case "rename":
-        const newName = prompt("Enter a new file name.");
-        const data = await renameFile(
+        newName = prompt("Enter a new file name.");
+        data = await renameFile(
           `${SERVER_URL}/${hasContext}`,
-          newName + ".txt"
+          newName + fileType
         );
         setFileData(data);
         break;
       case "delete":
         //TODO
+        data = await deleteFile(`${SERVER_URL}/${hasContext}`);
+        setFileData(data);
         break;
       case "copy":
         //TODO
+        newName = prompt("Enter a new file name.");
+        data = await postJSON(`${SERVER_URL}/${hasContext}`, newName);
         break;
     }
   };

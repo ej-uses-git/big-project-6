@@ -37,11 +37,11 @@ async function _getText(path) {
   }
 }
 
-async function postJSON(path, body) {
+async function postJSON(path, newName) {
   try {
     const res = await fetch(path, {
       method: "POST",
-      body: JSON.stringify(body),
+      body: JSON.stringify({ newName }),
       headers: new Headers({ "Content-type": "application/json" }),
     });
     const data = await res.json();
