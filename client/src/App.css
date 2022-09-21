@@ -31,17 +31,30 @@ th {
   border: 0.1vw solid black;
   width: 10vw;
   height: 5vw;
+  user-select: none;
+}
+
+td:hover,
+th:hover {
+  cursor: context-menu;
+}
+
+.selected {
+  background-color: lightblue;
 }
 
 .menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
   font-size: 14px;
   background-color: #fff;
   border-radius: 2px;
   padding: 5px 0 5px 0;
-  width: 150px;
-  height: 150px;
+  width: 10vw;
+  height: 15vw;
   margin: 0;
-  /* use absolute positioning  */
   position: absolute;
   list-style: none;
   box-shadow: 0 0 20px 0 #ccc;
@@ -49,12 +62,27 @@ th {
   transition: opacity 0.5s linear;
 }
 
+.menu:hover {
+  cursor: context-menu;
+}
+
+.option {
+  height: 3vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.option:hover {
+  background-color: lightblue;
+}
+
 .file-info,
 .file-display {
   display: flex;
   justify-content: center;
   align-items: center;
-  
+
   gap: 1.5vw;
   position: absolute;
   width: 30vw;

@@ -17,6 +17,7 @@ function Folder() {
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [showMenu, setShowMenu] = useState(false);
   const [hasContext, setHasContext] = useState();
+  const [selected, setSelected] = useState();
 
   const handleContextMenu = useCallback(
     (event) => {
@@ -24,6 +25,7 @@ function Folder() {
       setAnchorPoint({ x: event.pageX, y: event.pageY });
       setShowMenu(true);
       setHasContext(event.target.title);
+      setSelected(event.target.title);
     },
     [setAnchorPoint, setShowMenu, setHasContext]
   );
@@ -47,13 +49,13 @@ function Folder() {
         setFileData(data);
         break;
       case "delete":
+        const userSure = window.confirm("Are you sure? This cannot be undone!");
+        if (!userSure) return;
         data = await deleteFile(`${SERVER_URL}/${hasContext}`);
-        console.log(data);
         setFileData(data);
         break;
       case "copy":
         //TODO
-        console.log("%cI'm alive", { color: "red" });
         newName = prompt("Enter a new file name.");
         if (!newName) return;
         data = await postJSON(`${SERVER_URL}/${hasContext}`, newName);
@@ -62,8 +64,11 @@ function Folder() {
   };
 
   const handleClick = useCallback(
-    () => (showMenu ? setShowMenu(false) : null),
-    [showMenu]
+    (e) => {
+      if (showMenu) setShowMenu(false);
+      if (e.target.tagName === "BODY") setSelected(null);
+    },
+    [showMenu, selected]
   );
 
   useEffect(() => {
@@ -108,6 +113,12 @@ function Folder() {
                 <td
                   title={fileData[i]}
                   key={file + "--" + text}
+                  className={selected === fileData[i] ? "selected" : ""}
+                  onClick={(e) => {
+                    if (selected === fileData[i])
+                      return navigate(`${fileData[i]}`);
+                    setSelected(fileData[i]);
+                  }}
                   onContextMenu={handleContextMenu}
                 >
                   {text}
