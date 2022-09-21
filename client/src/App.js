@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
+import FileDisplay from "./pages/FileDisplay";
+import FileInfo from "./pages/FileInfo";
 import Folder from "./pages/Folder";
 
 function App() {
@@ -11,8 +13,8 @@ function App() {
           <Route path="joen">
             <Route index element={<Navigate to="main" />} />
             <Route path=":folderId" element={<Folder />}>
-              <Route path=":file/info" element={<div>Info</div>}/>
-              <Route path=":file/display" element={<div>Show</div>}/>
+              <Route path="info/:file" element={<FileInfo />} />
+              <Route path=":file" element={<FileDisplay />} />
             </Route>
           </Route>
         </Route>

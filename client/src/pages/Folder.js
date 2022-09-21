@@ -1,10 +1,10 @@
 import { formatNames } from "../utilities/folder-utils";
-import { getFetch } from "../utilities/fetch-utils";
+import { postJSON, getJSON, getText } from "../utilities/fetch-utils";
 import { useCallback, useEffect, useState } from "react";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import ContextMenu from "../components/ContextMenu";
 
-const URL = "http://10.0.0.55:3000/users/joen";
+const _SERVER_URL = "http://10.0.0.55:3000/users/joen";
 
 function Folder() {
   const navigate = useNavigate();
@@ -25,13 +25,20 @@ function Folder() {
     [setAnchorPoint, setShowMenu, setHasContext]
   );
 
-  const handleOptionSelect = (event) => {
+  const handleOptionSelect = async (event) => {
     const { title } = event.target;
     switch (title) {
       case "info":
-        return navigate(`${hasContext}/info`);
+        return navigate(`info/${hasContext}`);
       case "show":
-        return navigate(`${hasContext}/display`);
+        return navigate(`${hasContext}`);
+      case "rename":
+        const data = await postJSON(
+          `${_SERVER_URL}/${hasContext}`,
+          prompt("Enter a new file name.")
+        );
+        setFileData(data);
+        break;
       case "delete":
         //
         break;
@@ -55,8 +62,8 @@ function Folder() {
 
   useEffect(() => {
     (async () => {
-      // const data = await getFetch(URL);
-      const data = ["app.js", "examples", "b.txt"];
+      const data = await getJSON(_SERVER_URL);
+      // const data = ["app.js", "examples", "b.txt"];
       setFileData(data);
     })();
   }, []);
