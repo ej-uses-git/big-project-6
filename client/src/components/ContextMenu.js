@@ -17,7 +17,9 @@ function ContextMenu({ anchorPoint, onOptionSelect }) {
       <li onClick={onOptionSelect} title="delete">
         Delete
       </li>
-      <li>Copy</li>
+      <li onClick={onOptionSelect} title="copy">
+        Copy
+      </li>
     </ul>
   );
 }

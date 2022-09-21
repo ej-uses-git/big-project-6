@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getData } from "../utilities/fetch-utils";
 import { SERVER_URL } from "../utilities/folder-utils";
+import { useClickout } from "../utilities/react-utils";
 
 function FileDisplay() {
   const navigate = useNavigate();
   const { file } = useParams();
 
   const [fileContent, setFileContent] = useState("");
+
+  useClickout();
 
   useEffect(() => {
     (async () => {
@@ -24,7 +27,11 @@ function FileDisplay() {
 
   return (
     <div className="file-display">
-      <ul className="info-list">{fileContent}</ul>
+      <ul className="info-list">
+        {typeof fileContent === "string"
+          ? fileContent
+          : JSON.stringify(fileContent)}
+      </ul>
     </div>
   );
 }

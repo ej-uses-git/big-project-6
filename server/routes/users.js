@@ -63,8 +63,8 @@ router.delete("/joen/:filename", async (req, res, next) => {
   } catch (error) {
     console.error("there was an error:", error.message);
   }
-  // console.log("jhbfsk");
-  res.redirect(200, "/users/joen");
+  const files = await fs.readdir("users/joen");
+  res.json(files);
 });
 
 router.put("/joen/:filename", async (req, res, next) => {

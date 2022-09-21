@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getData } from "../utilities/fetch-utils";
 import { SERVER_URL } from "../utilities/folder-utils";
+import { useClickout } from "../utilities/react-utils";
 
 function FileInfo() {
   const navigate = useNavigate();
 
   const [fileInfo, setFileInfo] = useState({});
   const { file } = useParams();
+
+  useClickout();
 
   useEffect(() => {
     (async () => {

@@ -39,6 +39,7 @@ function Folder() {
         return navigate(`${hasContext}`);
       case "rename":
         newName = prompt("Enter a new file name.");
+        if (!newName) return;
         data = await renameFile(
           `${SERVER_URL}/${hasContext}`,
           newName + "." + fileType
@@ -46,13 +47,15 @@ function Folder() {
         setFileData(data);
         break;
       case "delete":
-        //TODO
         data = await deleteFile(`${SERVER_URL}/${hasContext}`);
+        console.log(data);
         setFileData(data);
         break;
       case "copy":
         //TODO
+        console.log("%cI'm alive", { color: "red" });
         newName = prompt("Enter a new file name.");
+        if (!newName) return;
         data = await postJSON(`${SERVER_URL}/${hasContext}`, newName);
         break;
     }

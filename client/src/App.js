@@ -19,6 +19,7 @@ function App() {
           </Route>
         </Route>
         <Route path="/" element={<Navigate to="/users" />} />
+        <Route path="*" element={<div>ERROR</div>} />
       </Routes>
     </BrowserRouter>
   );
