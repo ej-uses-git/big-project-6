@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getText } from "../utilities/fetch-utils";
-const _SERVER_URL = "http://10.0.0.55:3000/users/joen";
+import { getData } from "../utilities/fetch-utils";
+import { SERVER_URL } from "../utilities/folder-utils";
 
 function FileDisplay() {
   const navigate = useNavigate();
+  const { file } = useParams();
 
   const [fileContent, setFileContent] = useState("");
-  const { file } = useParams();
 
   useEffect(() => {
     (async () => {
       try {
-        const data = await getText(`${_SERVER_URL}/${file}`);
+        const fileType = file.split(".")[1];
+        const data = await getData(`${SERVER_URL}/${file}`, fileType);
         if (data instanceof Error) throw data;
         setFileContent(data);
       } catch (error) {

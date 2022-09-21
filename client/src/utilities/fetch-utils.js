@@ -1,6 +1,21 @@
 const FileNotFound = new Error("File Not Found");
+const BadRequest = new Error("Bad Request");
 
-async function getJSON(path) {
+async function getData(path, type) {
+  let data;
+  switch (type) {
+    case "json":
+      data = await _getJSON(path);
+      return data;
+    case "txt":
+      data = await _getText(path);
+      return data;
+    default:
+      return BadRequest;
+  }
+}
+
+async function _getJSON(path) {
   try {
     const res = await fetch(path);
     if (!res.ok) throw FileNotFound;
@@ -11,7 +26,7 @@ async function getJSON(path) {
   }
 }
 
-async function getText(path) {
+async function _getText(path) {
   try {
     const res = await fetch(path);
     if (!res.ok) throw FileNotFound;
@@ -36,7 +51,7 @@ async function postJSON(path, body) {
   }
 }
 
-async function putJSON(path, newName) {
+async function renameFile(path, newName) {
   try {
     const res = await fetch(path, {
       method: "PUT",
@@ -50,4 +65,14 @@ async function putJSON(path, newName) {
   }
 }
 
-export { getJSON, getText, postJSON, putJSON };
+async function deleteFile(path) {
+  try {
+    const res = await fetch(path, { method: "DELETE" });
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export { getData, postJSON, renameFile, deleteFile };

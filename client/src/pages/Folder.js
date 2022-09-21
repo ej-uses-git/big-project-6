@@ -1,10 +1,8 @@
-import { formatNames } from "../utilities/folder-utils";
-import { postJSON, getJSON, getText, putJSON } from "../utilities/fetch-utils";
+import { formatNames, SERVER_URL } from "../utilities/folder-utils";
+import { getData, renameFile } from "../utilities/fetch-utils";
 import { useCallback, useEffect, useState } from "react";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import ContextMenu from "../components/ContextMenu";
-
-const _SERVER_URL = "http://10.0.0.55:3000/users/joen";
 
 function Folder() {
   const navigate = useNavigate();
@@ -34,11 +32,10 @@ function Folder() {
         return navigate(`${hasContext}`);
       case "rename":
         const newName = prompt("Enter a new file name.");
-        const data = await putJSON(
-          `${_SERVER_URL}/${hasContext}`,
+        const data = await renameFile(
+          `${SERVER_URL}/${hasContext}`,
           newName + ".txt"
         );
-        console.log(data);
         setFileData(data);
         break;
       case "delete":
@@ -64,7 +61,7 @@ function Folder() {
 
   useEffect(() => {
     (async () => {
-      const data = await getJSON(_SERVER_URL);
+      const data = await getData(SERVER_URL, "json");
       // const data = ["app.js", "examples", "b.txt"];
       setFileData(data);
     })();
