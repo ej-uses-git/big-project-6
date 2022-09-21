@@ -10,7 +10,7 @@ function FileDisplay() {
 
   const [fileContent, setFileContent] = useState("");
 
-  useClickout();
+  const vanish = useClickout();
 
   useEffect(() => {
     (async () => {
@@ -26,7 +26,7 @@ function FileDisplay() {
   }, [file]);
 
   return (
-    <div className="file-display">
+    <div className={"file-display" + (vanish ? " disappear" : "")}>
       <ul className="info-list">
         {typeof fileContent === "string"
           ? fileContent

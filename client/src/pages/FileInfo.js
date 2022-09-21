@@ -10,7 +10,7 @@ function FileInfo() {
   const [fileInfo, setFileInfo] = useState({});
   const { file } = useParams();
 
-  useClickout();
+  const vanish = useClickout();
 
   useEffect(() => {
     (async () => {
@@ -25,11 +25,14 @@ function FileInfo() {
   }, [file]);
 
   return (
-    <div className="file-info">
+    <div className={"file-info" + (vanish ? " disappear" : "")}>
       <ul className="info-list">
         {Object.keys(fileInfo).map((key) => (
-          <div key={key}>
-            {key}: {fileInfo[key]}
+          <div className="pair">
+            <div key={key + " key"} className="key">{key}:</div>
+            <div key={key + " value"} className="value">
+              {fileInfo[key]}
+            </div>
           </div>
         ))}
       </ul>

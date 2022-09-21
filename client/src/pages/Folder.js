@@ -97,37 +97,43 @@ function Folder() {
         />
       )}
 
-      {}
+      <div className="folder-display">
+        <div className="folder-title">
+          Welcome, Joen! Here is your {folderId} folder.
+        </div>
 
-      <table className="folder-contents">
-        <thead className="folder-headings">
-          <tr>
-            <th>Name</th>
-            <th>Type</th>
-          </tr>
-        </thead>
-        <tbody className="folder-files">
-          {fileNames.map((file, i) => (
-            <tr key={file} className="folder-file">
-              {file.map((text) => (
-                <td
-                  title={fileData[i]}
-                  key={file + "--" + text}
-                  className={selected === fileData[i] ? "selected" : ""}
-                  onClick={(e) => {
-                    if (selected === fileData[i])
-                      return navigate(`${fileData[i]}`);
-                    setSelected(fileData[i]);
-                  }}
-                  onContextMenu={handleContextMenu}
-                >
-                  {text}
-                </td>
+        <div className="table-holder">
+          <table className="folder-contents">
+            <thead className="folder-headings">
+              <tr>
+                <th className="name-head">Name</th>
+                <th className="type-head">Type</th>
+              </tr>
+            </thead>
+            <tbody className="folder-files">
+              {fileNames.map((file, i) => (
+                <tr key={file} className="folder-file">
+                  {file.map((text) => (
+                    <td
+                      title={fileData[i]}
+                      key={file + "--" + text}
+                      className={selected === fileData[i] ? "selected" : ""}
+                      onClick={(e) => {
+                        if (selected === fileData[i])
+                          return navigate(`${fileData[i]}`);
+                        setSelected(fileData[i]);
+                      }}
+                      onContextMenu={handleContextMenu}
+                    >
+                      {text}
+                    </td>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <Outlet />
     </div>
