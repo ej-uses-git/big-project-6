@@ -161,7 +161,9 @@ th:hover,
 }
 
 .file-info,
-.file-display {
+.file-display,
+.delete-confirm,
+.new-name {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -176,6 +178,12 @@ th:hover,
   box-shadow: 0 0 30vh 30vh var(--minor-one);
   opacity: 0;
   animation: appear 0.2s linear 0.1s 1 forwards;
+}
+
+#delete-confirm,
+#new-name {
+  width: 30vw;
+  height: 70vh;
 }
 
 .pair {

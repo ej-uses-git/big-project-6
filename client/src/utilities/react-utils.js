@@ -14,7 +14,8 @@ function useClickout(setter) {
         }, 400);
       });
     })();
-    navigate("../");
+    if (!setter) return navigate("../");
+    setter(false);
   }, []);
 
   useEffect(() => {

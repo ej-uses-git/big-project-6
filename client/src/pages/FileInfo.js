@@ -28,11 +28,9 @@ function FileInfo() {
     <div className={"file-info" + (vanish ? " disappear" : "")}>
       <ul className="info-list">
         {Object.keys(fileInfo).map((key) => (
-          <div className="pair">
-            <div key={key + " key"} className="key">{key}:</div>
-            <div key={key + " value"} className="value">
-              {fileInfo[key]}
-            </div>
+          <div className="pair" key={key + "-" + fileInfo[key]}>
+            <div className="key">{key}:</div>
+            <div className="value">{fileInfo[key]}</div>
           </div>
         ))}
       </ul>

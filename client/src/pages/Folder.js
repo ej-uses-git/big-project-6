@@ -8,6 +8,8 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import ContextMenu from "../components/ContextMenu";
+import DeleteConfirm from "../components/DeleteConfirm";
+import NewName from "../components/NewName";
 
 function Folder() {
   const navigate = useNavigate();
@@ -18,6 +20,9 @@ function Folder() {
   const [showMenu, setShowMenu] = useState(false);
   const [hasContext, setHasContext] = useState();
   const [selected, setSelected] = useState();
+  const [deleteState, setDeleteState] = useState({ active: false, confirm: 0 });
+  const [renameState, setRenameState] = useState({ active: false, name: "" });
+  const [copyState, setCopyState] = useState({ active: false, name: "" });
 
   const handleContextMenu = useCallback(
     (event) => {
@@ -32,7 +37,6 @@ function Folder() {
 
   const handleOptionSelect = async (event) => {
     const { title } = event.target;
-    const fileType = hasContext.split(".")[1] || "";
     let data, newName;
     switch (title) {
       case "info":
@@ -40,24 +44,14 @@ function Folder() {
       case "show":
         return navigate(`${hasContext}`);
       case "rename":
-        newName = prompt("Enter a new file name.");
-        if (!newName) return;
-        data = await renameFile(
-          `${SERVER_URL}/${hasContext}`,
-          newName + "." + fileType
-        );
-        setFileData(data);
+        setRenameState({ active: true, name: "" });
         break;
       case "delete":
-        const userSure = window.confirm("Are you sure? This cannot be undone!");
-        if (!userSure) return;
-        data = await deleteFile(`${SERVER_URL}/${hasContext}`);
-        setFileData(data);
+        setDeleteState({ active: true, confirm: 0 });
         break;
       case "copy":
         //TODO
-        newName = prompt("Enter a new file name.");
-        if (!newName) return;
+        setCopyState({ active: true, name: "" });
         data = await postJSON(`${SERVER_URL}/${hasContext}`, newName);
         break;
     }
@@ -85,6 +79,37 @@ function Folder() {
       setFileData(data);
     })();
   }, []);
+
+  useEffect(() => {
+    if (!deleteState.confirm) return;
+    (async () => {
+      const data = await deleteFile(`${SERVER_URL}/${hasContext}`);
+      setFileData(data);
+    })();
+  }, [deleteState.confirm]);
+
+  useEffect(() => {
+    if (!renameState.name) return;
+    const fileType = hasContext.split(".")[1] || "";
+    (async () => {
+      const data = await renameFile(
+        `${SERVER_URL}/${hasContext}`,
+        renameState.name + "." + fileType
+      );
+      setFileData(data);
+    })();
+  }, [renameState.name]);
+
+  useEffect(() => {
+    if (!copyState.name) return;
+    (async () => {
+      const data = await postJSON(
+        `${SERVER_URL}/${hasContext}`,
+        copyState.name
+      );
+      setFileData(data);
+    })();
+  }, [copyState.name]);
 
   const fileNames = formatNames(fileData);
   return (
@@ -134,6 +159,38 @@ function Folder() {
           </table>
         </div>
       </div>
+
+      {deleteState.active && (
+        <DeleteConfirm
+          confirm={() => setDeleteState({ active: false, confirm: 1 })}
+          deny={() => setDeleteState({ active: false, confirm: 0 })}
+          onClickout={() => {
+            setDeleteState({ active: false, confirm: 0 });
+          }}
+        />
+      )}
+
+      {renameState.active && (
+        <NewName
+          onSubmit={(value) => {
+            setRenameState({ active: false, name: value });
+          }}
+          onClickout={() => {
+            setRenameState({ active: false, name: "" });
+          }}
+        />
+      )}
+
+      {copyState.active && (
+        <NewName
+          onSubmit={(value) => {
+            setCopyState({ active: false, name: value });
+          }}
+          onClickout={() => {
+            setCopyState({ active: false, name: "" });
+          }}
+        />
+      )}
 
       <Outlet />
     </div>
