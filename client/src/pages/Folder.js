@@ -41,7 +41,7 @@ function Folder() {
         newName = prompt("Enter a new file name.");
         data = await renameFile(
           `${SERVER_URL}/${hasContext}`,
-          newName + fileType
+          newName + "." + fileType
         );
         setFileData(data);
         break;
