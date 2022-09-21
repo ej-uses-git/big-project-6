@@ -36,4 +36,18 @@ async function postJSON(path, body) {
   }
 }
 
-export { getJSON, getText,  postJSON };
+async function putJSON(path, newName) {
+  try {
+    const res = await fetch(path, {
+      method: "PUT",
+      body: JSON.stringify({ newName }),
+      headers: new Headers({ "Content-type": "application/json" }),
+    });
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export { getJSON, getText, postJSON, putJSON };

@@ -1,5 +1,5 @@
 import { formatNames } from "../utilities/folder-utils";
-import { postJSON, getJSON, getText } from "../utilities/fetch-utils";
+import { postJSON, getJSON, getText, putJSON } from "../utilities/fetch-utils";
 import { useCallback, useEffect, useState } from "react";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import ContextMenu from "../components/ContextMenu";
@@ -33,17 +33,19 @@ function Folder() {
       case "show":
         return navigate(`${hasContext}`);
       case "rename":
-        const data = await postJSON(
+        const newName = prompt("Enter a new file name.");
+        const data = await putJSON(
           `${_SERVER_URL}/${hasContext}`,
-          prompt("Enter a new file name.")
+          newName + ".txt"
         );
+        console.log(data);
         setFileData(data);
         break;
       case "delete":
-        //
+        //TODO
         break;
       case "copy":
-        //
+        //TODO
         break;
     }
   };

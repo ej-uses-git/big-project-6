@@ -7,30 +7,29 @@ const _SERVER_URL = "http://10.0.0.55:3000/users/joen";
 function FileInfo() {
   const navigate = useNavigate();
 
-  const [fileInfo, setFileInfo] = useState({});
+  const [fileInfo, setFileInfo] = useState({ Bob: "The builder" });
   const { file } = useParams();
 
   useEffect(() => {
     (async () => {
       try {
-        const data = getJSON(`${_SERVER_URL}/info/${file}`);
-        if (!data.ok) throw data;
+        const data = await getJSON(`${_SERVER_URL}/info/${file}`);
+        if (data instanceof Error) throw data;
         setFileInfo(data);
       } catch (error) {
-        console.log("error");
-        // navigate("/error");
+        navigate("/error");
       }
     })();
-  }, []);
+  }, [file]);
 
   return (
     <div className="file-info">
       <ul className="info-list">
-        {Object.keys(fileInfo).map((key) => {
-          <li key={key}>
+        {Object.keys(fileInfo).map((key) => (
+          <div key={key}>
             {key}: {fileInfo[key]}
-          </li>;
-        })}
+          </div>
+        ))}
       </ul>
     </div>
   );
