@@ -64,7 +64,9 @@ router.delete("/joen/:filename", async (req, res, next) => {
     console.error("there was an error:", error.message);
   }
   // console.log("jhbfsk");
-  res.redirect(200, "/users/joen");
+  // res.redirect(200, "/users/joen");
+  const files = await fs.readdir("users/joen");
+  res.json(files);
 });
 
 router.put("/joen/:filename", async (req, res, next) => {
@@ -79,8 +81,12 @@ router.put("/joen/:filename", async (req, res, next) => {
 router.post("/joen/:filename", async (req, res, next) => {
   const newName = req.body.newName;
   console.log(newName);
-  const oldName = req.params.filename;
-  fs.rename(`users/joen/${oldName}`, `users/joen/${newName}`);
+  const originalName = req.params.filename;
+  // try {
+  await fs.copyFile(`users/joen/${originalName}`, `users/joen/${newName}`);
+  // } catch {
+  //   console.log("The file could not be copied");
+  // }
   const files = await fs.readdir("users/joen");
   res.json(files);
 });
