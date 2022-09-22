@@ -3,6 +3,7 @@ const { dir } = require("console");
 const { json } = require("express");
 var express = require("express");
 var fs = require("fs/promises");
+var formidable = require("formidable");
 var router = express.Router();
 var StringDecoder = require("string_decoder").StringDecoder;
 var decoder = new StringDecoder("utf8");
@@ -29,34 +30,13 @@ router.get("/:user", async (req, res, next) => {
 //   res.json(files);
 // });
 
-/* GET show functionallity. url: /users/user/*filename* */
-router.get("/:user/:filename", async (req, res, next) => {
-  const name = req.params.filename;
-  const user = req.params.user;
-  const filePath = `users/${user}/${name}`;
-  const stat = await fs.lstat(filePath);
-
-  if (stat.isFile())
-    return res.sendFile(path.join(__dirname, `../${filePath}`));
-
-  const files = await fs.readdir(filePath);
-  res.json(files);
-
-  // const data = await fs.readFile(
-  //   `users/user/${req.params.filename}`,
-  //   function (err, data) {
-  //     if (err) throw err;
-  //     return data;
-  //   }
-  // );
-  // res.send(decoder.write(data));
-});
-
 /* GET info functionallity. url: /users/user/info/*filename* */
 router.get("/:user/:filename/info", async (req, res, next) => {
-  const name = req.params.filename;
-  const user = req.params.user;
-  const filePath = `users/${req.params.user}/${name}`;
+  const name = req.url.slice(0, req.url.lastIndexOf("/") - 1);
+  // const filePath = `users/${name}`;
+  console.log(filePath);
+  console.log(name);
+  const filePath = `users/${req.params.filename}/${name}`;
   const cleanName = name.split(".")[0];
   const location = path.join(__dirname, `../${filePath}`);
 
@@ -91,12 +71,35 @@ router.get("/:user/:filename/info", async (req, res, next) => {
   res.json(info);
 });
 
+/* GET show functionallity. url: /users/user/*filename* */
+router.get("/:user/*", async (req, res, next) => {
+  const name = req.url;
+  const filePath = `users/${name}`;
+  const stat = await fs.lstat(filePath);
+
+  if (stat.isFile())
+    return res.sendFile(path.join(__dirname, `../${filePath}`));
+
+  const files = await fs.readdir(filePath);
+  res.json(files);
+
+  // const data = await fs.readFile(
+  //   `users/user/${req.params.filename}`,
+  //   function (err, data) {
+  //     if (err) throw err;
+  //     return data;
+  //   }
+  // );
+  // res.send(decoder.write(data));
+});
+
 /* DELETE delete functionallity. url: /users/user/*filename* */
 router.delete("/:user/:filename", async (req, res, next) => {
   const user = req.params.user;
 
   try {
-    const filePath = `./users/${user}/${req.params.filename}`;
+    const name = req.url;
+    const filePath = `users/${name}`;
     const stats = await fs.stat(filePath);
     if (stats.isDirectory()) await fs.rmdir(filePath, { recursive: true });
     else await fs.unlink(filePath);
@@ -169,6 +172,16 @@ router.post("/:user/:filename", async (req, res, next) => {
 
   const files = await fs.readdir(`users/${user}`);
   res.json(files);
+});
+
+router.post("/:user/upload/:filename", async (req, res, next) => {
+  const user = req.params.user;
+  const filename = req.params.filename;
+  // var form = new formidable.IncomingForm();
+  // form.parse(req, function (err, fields, files) {
+  //   res.write("File uploaded");
+  //   res.end();
+  // });
 });
 
 module.exports = router;
