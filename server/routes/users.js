@@ -1,4 +1,5 @@
 // #region requires
+const { dir } = require("console");
 const { json } = require("express");
 var express = require("express");
 var fs = require("fs/promises");
@@ -12,6 +13,7 @@ var path = require("path");
 const fileTypes = {
   txt: "Text File (.txt)",
   json: "JSON Source File (.json)",
+  dir: "Files Directory",
 };
 //#endregion
 
@@ -50,14 +52,13 @@ router.get("/joen/info/:filename", async (req, res, next) => {
   // console.log(req.params.filename);
   const name = req.params.filename;
   const cleanName = name.split(".")[0];
-  const type = fileTypes[name.split(".")[1]];
+  const location = path.join(__dirname, `../users/joen/${name}`);
+
+  let type = fileTypes[name.split(".")[1]];
   let mtime = new Date(Date.now());
   let birthTime = new Date(Date.now());
   let size = 0;
-  // const data = await fs.readFile(`users/joen/${name}`, function (err, data) {
-  //   if (err) throw err;
-  //   return data;
-  // });
+  let info = {};
 
   //fetch file details
   try {
@@ -66,21 +67,28 @@ router.get("/joen/info/:filename", async (req, res, next) => {
     mtime = stats.mtime;
     birthTime = stats.birthtime;
     size = stats.size;
+
+    if (stats.isDirectory()) {
+      let count = await (await fs.readdir(`./users/joen/${name}`)).length;
+      type = fileTypes["dir"];
+      info.countFiles = count;
+    }
   } catch (error) {
     console.log(error);
   }
 
   // const size = String(data.byteLength);
-  const location = path.join(__dirname, `../users/joen/${name}`);
-  const info = { cleanName, type, size, mtime, birthTime, location };
+  Object.assign(info, { cleanName, type, size, mtime, birthTime, location });
   res.json(info);
 });
 
 /* DELETE delete functionallity. url: /users/joen/*filename* */
 router.delete("/joen/:filename", async (req, res, next) => {
   try {
-    await fs.unlink(`users/joen/${req.params.filename}`);
-    console.log("successfully deleted /tmp/hello");
+    const filePath = `./users/joen/${req.params.filename}`;
+    const stats = await fs.stat(filePath);
+    if (stats.isDirectory()) await fs.rmdir(filePath, { recursive: true });
+    else await fs.unlink(filePath);
   } catch (error) {
     console.error("there was an error:", error.message);
   }
