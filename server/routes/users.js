@@ -32,11 +32,10 @@ router.get("/:user", async (req, res, next) => {
 
 /* GET info functionallity. url: /users/user/info/*filename* */
 router.get("/:user/:filename/info", async (req, res, next) => {
-  const name = req.url.slice(0, req.url.lastIndexOf("/") - 1);
+  // const name = req.url.slice(0, req.url.lastIndexOf("/") - 1);
   // const filePath = `users/${name}`;
-  console.log(filePath);
-  console.log(name);
-  const filePath = `users/${req.params.filename}/${name}`;
+  const name = req.params.filename;
+  const filePath = `users/${req.params.user}/${name}`;
   const cleanName = name.split(".")[0];
   const location = path.join(__dirname, `../${filePath}`);
 
@@ -94,11 +93,13 @@ router.get("/:user/*", async (req, res, next) => {
 });
 
 /* DELETE delete functionallity. url: /users/user/*filename* */
-router.delete("/:user/:filename", async (req, res, next) => {
+router.delete("/:user/*", async (req, res, next) => {
   const user = req.params.user;
+  const name = req.url;
 
   try {
     const name = req.url;
+    // const filePath = `users/${name}`;
     const filePath = `users/${name}`;
     const stats = await fs.stat(filePath);
     if (stats.isDirectory()) await fs.rmdir(filePath, { recursive: true });
