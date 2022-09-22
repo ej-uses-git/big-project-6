@@ -98,7 +98,6 @@ router.delete("/:user/*", async (req, res, next) => {
   const name = req.url;
 
   try {
-    const name = req.url;
     // const filePath = `users/${name}`;
     const filePath = `users/${name}`;
     const stats = await fs.stat(filePath);
