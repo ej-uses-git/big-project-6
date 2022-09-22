@@ -18,28 +18,32 @@ const fileTypes = {
 };
 //#endregion
 
-/* GET. root url: /users/joen */
-router.get("/joen", async (req, res, next) => {
-  const files = await fs.readdir("users/joen");
+/* GET. root url: /users/user */
+router.get("/:user", async (req, res, next) => {
+  const files = await fs.readdir(`users/${req.params.user}`);
   res.json(files);
 });
 
-/* GET show functionallity. url: /users/joen/*filename* */
-router.get("/joen/:filename", async (req, res, next) => {
+// router.get("/user", async (req, res, next) => {
+//   const files = await fs.readdir(`users/user`);
+//   res.json(files);
+// });
+
+/* GET show functionallity. url: /users/user/*filename* */
+router.get("/:user/:filename", async (req, res, next) => {
   const name = req.params.filename;
-  const stat = await fs.lstat(`users/joen/${name}`);
+  const user = req.params.user;
+  const filePath = `users/${user}/${name}`;
+  const stat = await fs.lstat(filePath);
 
   if (stat.isFile())
-    return res.sendFile(path.join(__dirname, `../users/joen/${name}`));
+    return res.sendFile(path.join(__dirname, `../${filePath}`));
 
-  const files = await fs.readdir(`users/joen/${name}`);
+  const files = await fs.readdir(filePath);
   res.json(files);
-  // console.log(stat.isDirectory());
-  // console.log(stat.isFile());
-  // console.log(stat);
 
   // const data = await fs.readFile(
-  //   `users/joen/${req.params.filename}`,
+  //   `users/user/${req.params.filename}`,
   //   function (err, data) {
   //     if (err) throw err;
   //     return data;
@@ -48,61 +52,69 @@ router.get("/joen/:filename", async (req, res, next) => {
   // res.send(decoder.write(data));
 });
 
-/* GET info functionallity. url: /users/joen/info/*filename* */
-router.get("/joen/:filename/info", async (req, res, next) => {
-  // console.log(req.params.filename);
+/* GET info functionallity. url: /users/user/info/*filename* */
+router.get("/:user/:filename/info", async (req, res, next) => {
   const name = req.params.filename;
+  const user = req.params.user;
+  const filePath = `users/${req.params.user}/${name}`;
   const cleanName = name.split(".")[0];
-  const location = path.join(__dirname, `../users/joen/${name}`);
+  const location = path.join(__dirname, `../${filePath}`);
 
   let type = fileTypes[name.split(".")[1]];
   let mtime = new Date(Date.now());
   let birthTime = new Date(Date.now());
-  let size = 0;
   let info = {};
 
   //fetch file details
   try {
-    const stats = await fs.stat(`./users/joen/${name}`);
+    const stats = await fs.stat(filePath);
     // print file last modified date
     mtime = stats.mtime;
     birthTime = stats.birthtime;
-    size = stats.size;
 
     if (stats.isDirectory()) {
-      let count = await (await fs.readdir(`./users/joen/${name}`)).length;
+      let count = await (await fs.readdir(filePath)).length;
       type = fileTypes["dir"];
-      info.countFiles = count;
-    }
+      info["Number of files and directories"] = count;
+    } else info.Size = stats.size;
   } catch (error) {
     console.log(error);
   }
 
-  // const size = String(data.byteLength);
-  Object.assign(info, { cleanName, type, size, mtime, birthTime, location });
+  Object.assign(info, {
+    Name: cleanName,
+    Type: type,
+    "Last Modified": mtime,
+    Created: birthTime,
+    Path: location,
+  });
   res.json(info);
 });
 
-/* DELETE delete functionallity. url: /users/joen/*filename* */
-router.delete("/joen/:filename", async (req, res, next) => {
+/* DELETE delete functionallity. url: /users/user/*filename* */
+router.delete("/:user/:filename", async (req, res, next) => {
+  const user = req.params.user;
+
   try {
-    const filePath = `./users/joen/${req.params.filename}`;
+    const filePath = `./users/${user}/${req.params.filename}`;
     const stats = await fs.stat(filePath);
     if (stats.isDirectory()) await fs.rmdir(filePath, { recursive: true });
     else await fs.unlink(filePath);
   } catch (error) {
     console.error("there was an error:", error.message);
   }
-  // res.redirect(200, "/users/joen");
-  const files = await fs.readdir("users/joen");
+  // res.redirect(200, "/users/user");
+  const files = await fs.readdir(`users/${user}`);
   res.json(files);
 });
 
-/* PUT rename functionallity. url: /users/joen/*filename* */
-router.put("/joen/:filename", async (req, res, next) => {
-  const newNamePath = `users/joen/${req.body.newName}`;
-  const originalNamePath = `users/joen/${req.params.filename}`;
+/* PUT rename functionallity. url: /users/user/*filename* */
+router.put("/:user/:filename", async (req, res, next) => {
+  const user = req.params.user;
+  const newNamePath = `users/${user}/${req.body.newName}`;
+  const originalNamePath = `users/${user}/${req.params.filename}`;
   const stats = await fs.stat(originalNamePath);
+
   if (stats.isDirectory()) {
     await fs.cp(originalNamePath, newNamePath, {
       recursive: true,
@@ -111,17 +123,18 @@ router.put("/joen/:filename", async (req, res, next) => {
       recursive: true,
     });
   } else await fs.rename(originalNamePath, newNamePath);
-  const files = await fs.readdir("users/joen");
+  const files = await fs.readdir(`users/${user}`);
   res.json(files);
 });
 
-/* POST copy functionallity. url: /users/joen/*filename*
+/* POST copy functionallity. url: /users/user/*filename*
  if filename exist - copy operation
  else add new file */
-router.post("/joen/:filename", async (req, res, next) => {
+router.post("/:user/:filename", async (req, res, next) => {
+  const user = req.params.user;
   const filename = req.params.filename;
-  const newNamePath = `users/joen/${req.body.newName}`;
-  const originalNamePath = `users/joen/${filename}`;
+  const newNamePath = `users/${user}/${req.body.newName}`;
+  const originalNamePath = `users/${user}/${filename}`;
 
   try {
     await fs.access(
@@ -136,17 +149,25 @@ router.post("/joen/:filename", async (req, res, next) => {
       });
     } else await fs.copyFile(originalNamePath, newNamePath);
   } catch (error) {
-    if (filename.includes("."))
-      await fs.writeFile(originalNamePath, req.body.content);
-    else await mkdir(originalNamePath, { recursive: true });
-
-    // console.log("got new file, filepath", originalNamePath);
-
-    // The check failed
-    // console.log(path.join(__dirname, `../${originalNamePath}`));
+    if (filename.includes(".")) {
+      const type = filename.split(".")[1];
+      let fileContent;
+      switch (type) {
+        case "txt":
+          fileContent = req.body.content;
+          break;
+        case "json":
+          fileContent = JSON.stringify(req.body);
+          break;
+        default:
+          console.log("unsupported file type.");
+          break;
+      }
+      await fs.writeFile(originalNamePath, fileContent);
+    } else await fs.mkdir(originalNamePath, { recursive: true });
   }
 
-  const files = await fs.readdir("users/joen");
+  const files = await fs.readdir(`users/${user}`);
   res.json(files);
 });
 
