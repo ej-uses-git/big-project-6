@@ -1,6 +1,4 @@
 // #region requires
-const { dir } = require("console");
-const { json } = require("express");
 var express = require("express");
 var fs = require("fs/promises");
 var formidable = require("formidable");
@@ -133,7 +131,6 @@ router.put("/:user/:filename", async (req, res, next) => {
  if filename exist - copy operation
  else add new file */
 router.post("/:user/:filename", async (req, res, next) => {
-  console.log(req.body);
   const user = req.params.user;
   const filename = req.params.filename;
   const newNamePath = `users/${user}/${req.body.newName}`;
