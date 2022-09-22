@@ -63,7 +63,6 @@ function Folder() {
         setDeleteState({ active: true, confirm: 0 });
         break;
       case "copy":
-        //TODO
         setCopyState({ active: true, name: "" });
         data = await postJSON(`${getURL(pathname)}/${hasContext}`, newName);
         break;
@@ -171,9 +170,7 @@ function Folder() {
 
       {!showDisplay && !showInfo && (
         <div className="folder-display">
-          <div className="folder-title">
-            Welcome, Joen! Here is your folder.
-          </div>
+          <div className="folder-title">Welcome! Here is your folder.</div>
 
           <div className="table-holder">
             <table className="folder-contents">
