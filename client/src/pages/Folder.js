@@ -24,7 +24,7 @@ function Folder() {
 
   const [showInfo, setShowInfo] = useState();
   const [showDisplay, setShowDisplay] = useState();
-  const [showCreate, setShowCreate] = useState();
+  const [showCreate, setShowCreate] = useState(false);
   const [fileData, setFileData] = useState([]);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [showMenu, setShowMenu] = useState(false);
@@ -52,9 +52,11 @@ function Folder() {
     switch (title) {
       case "info":
         setShowInfo(true);
+        setShowDisplay(false);
         return navigate(`${pathname}/${hasContext}/info`);
       case "show":
         setShowDisplay(true);
+        setShowInfo(false);
         return navigate(`${pathname}/${hasContext}`);
       case "rename":
         setRenameState({ active: true, name: "" });
@@ -64,7 +66,6 @@ function Folder() {
         break;
       case "copy":
         setCopyState({ active: true, name: "" });
-        data = await postJSON(`${getURL(pathname)}/${hasContext}`, newName);
         break;
     }
   };
@@ -89,7 +90,7 @@ function Folder() {
     setShowDisplay(afterPeriod.length > 1);
     setShowInfo(pathname.endsWith("info"));
     setCreateState({
-      active: pathname.endsWith("info") && afterPeriod.length <= 1,
+      active: showCreate,
       body: {},
     });
   }, [pathname]);
@@ -135,7 +136,7 @@ function Folder() {
     (async () => {
       const data = await postJSON(
         `${getURL(pathname)}/${hasContext}`,
-        copyState.name
+        copyState.name + `.${hasContext.split(".")[1]}`
       );
       setFileData(data);
       folderContent.current = data;
@@ -208,8 +209,13 @@ function Folder() {
         </div>
       )}
 
-      {!createState.active && (
-        <button onClick={() => setCreateState({ active: true, body: {} })}>
+      {!showCreate && (
+        <button
+          onClick={() => {
+            setCreateState({ active: true, body: {} });
+            setShowCreate(true);
+          }}
+        >
           Create new file
         </button>
       )}
@@ -246,9 +252,12 @@ function Folder() {
         />
       )}
 
-      {createState.active && (
+      {showCreate && (
         <CreateFile
-          onSubmit={(value) => setCreateState({ active: false, body: value })}
+          onSubmit={(value) => {
+            setCreateState({ active: false, body: value });
+            setShowCreate(false);
+          }}
           onClickout={() => {
             setCreateState({ active: false, body: "" });
           }}
@@ -257,7 +266,7 @@ function Folder() {
 
       {showInfo && <FileInfo />}
 
-      {showDisplay && <FileDisplay />}
+      {showDisplay && !showInfo && <FileDisplay />}
     </div>
   );
 }

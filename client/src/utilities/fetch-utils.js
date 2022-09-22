@@ -38,6 +38,7 @@ async function _getText(path) {
 }
 
 async function postJSON(path, newName) {
+  console.log("got here");
   try {
     const res = await fetch(path, {
       method: "POST",

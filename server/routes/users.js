@@ -94,7 +94,7 @@ router.get("/:user/*", async (req, res, next) => {
 
 /* DELETE delete functionallity. url: /users/user/*filename* */
 router.delete("/:user/*", async (req, res, next) => {
-  const user = req.params.user;
+  // const user = req.params.user;
   const name = req.url;
 
   try {
@@ -133,6 +133,7 @@ router.put("/:user/:filename", async (req, res, next) => {
  if filename exist - copy operation
  else add new file */
 router.post("/:user/:filename", async (req, res, next) => {
+  console.log(req.body);
   const user = req.params.user;
   const filename = req.params.filename;
   const newNamePath = `users/${user}/${req.body.newName}`;
