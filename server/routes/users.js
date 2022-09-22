@@ -1,3 +1,4 @@
+// #region requires
 const { json } = require("express");
 var express = require("express");
 var fs = require("fs/promises");
@@ -5,19 +6,35 @@ var router = express.Router();
 var StringDecoder = require("string_decoder").StringDecoder;
 var decoder = new StringDecoder("utf8");
 var path = require("path");
+// #endregion
 
+//#region const varibles
 const fileTypes = {
   txt: "Text File (.txt)",
   json: "JSON Source File (.json)",
 };
-/* GET users listing. */
+//#endregion
+
+/* GET. root url: /users/joen */
 router.get("/joen", async (req, res, next) => {
   const files = await fs.readdir("users/joen");
   res.json(files);
 });
 
+/* GET show functionallity. url: /users/joen/*filename* */
 router.get("/joen/:filename", async (req, res, next) => {
-  res.sendFile(path.join(__dirname, `../users/joen/${req.params.filename}`));
+  const name = req.params.filename;
+  const stat = await fs.lstat(`users/joen/${name}`);
+
+  if (stat.isFile())
+    return res.sendFile(path.join(__dirname, `../users/joen/${name}`));
+
+  const files = await fs.readdir(`users/joen/${name}`);
+  res.json(files);
+  // console.log(stat.isDirectory());
+  // console.log(stat.isFile());
+  // console.log(stat);
+
   // const data = await fs.readFile(
   //   `users/joen/${req.params.filename}`,
   //   function (err, data) {
@@ -28,6 +45,7 @@ router.get("/joen/:filename", async (req, res, next) => {
   // res.send(decoder.write(data));
 });
 
+/* GET info functionallity. url: /users/joen/info/*filename* */
 router.get("/joen/info/:filename", async (req, res, next) => {
   // console.log(req.params.filename);
   const name = req.params.filename;
@@ -35,10 +53,11 @@ router.get("/joen/info/:filename", async (req, res, next) => {
   const type = fileTypes[name.split(".")[1]];
   let mtime = new Date(Date.now());
   let birthTime = new Date(Date.now());
-  const data = await fs.readFile(`users/joen/${name}`, function (err, data) {
-    if (err) throw err;
-    return data;
-  });
+  let size = 0;
+  // const data = await fs.readFile(`users/joen/${name}`, function (err, data) {
+  //   if (err) throw err;
+  //   return data;
+  // });
 
   //fetch file details
   try {
@@ -46,16 +65,18 @@ router.get("/joen/info/:filename", async (req, res, next) => {
     // print file last modified date
     mtime = stats.mtime;
     birthTime = stats.birthtime;
+    size = stats.size;
   } catch (error) {
     console.log(error);
   }
 
-  const size = String(data.byteLength);
+  // const size = String(data.byteLength);
   const location = path.join(__dirname, `../users/joen/${name}`);
-  const info = { cleanName, type, size, mtime, location, birthTime };
+  const info = { cleanName, type, size, mtime, birthTime, location };
   res.json(info);
 });
 
+/* DELETE delete functionallity. url: /users/joen/*filename* */
 router.delete("/joen/:filename", async (req, res, next) => {
   try {
     await fs.unlink(`users/joen/${req.params.filename}`);
@@ -69,6 +90,7 @@ router.delete("/joen/:filename", async (req, res, next) => {
   res.json(files);
 });
 
+/* PUT rename functionallity. url: /users/joen/*filename* */
 router.put("/joen/:filename", async (req, res, next) => {
   const newName = req.body.newName;
   console.log(newName);
@@ -78,6 +100,7 @@ router.put("/joen/:filename", async (req, res, next) => {
   res.json(files);
 });
 
+/* POST copy functionallity. url: /users/joen/*filename* */
 router.post("/joen/:filename", async (req, res, next) => {
   const newName = req.body.newName;
   console.log(newName);
