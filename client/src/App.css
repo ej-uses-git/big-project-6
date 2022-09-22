@@ -167,7 +167,8 @@ th:hover,
 .file-info,
 .file-display,
 .delete-confirm,
-.new-name {
+.new-name,
+.create-file {
   display: flex;
   justify-content: center;
   align-items: center;

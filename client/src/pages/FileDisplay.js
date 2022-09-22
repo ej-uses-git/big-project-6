@@ -21,7 +21,7 @@ function FileDisplay() {
         if (data instanceof Error) throw data;
         setFileContent(data);
       } catch (error) {
-        navigate("/error");
+        console.log(error.message);
       }
     })();
   }, [filename]);

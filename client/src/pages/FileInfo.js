@@ -11,7 +11,8 @@ function FileInfo() {
   const [fileInfo, setFileInfo] = useState({});
   const { filename } = useParams();
 
-  const returnPath = pathname.slice(0, pathname.indexOf(`/${filename}`));
+  let returnPath = pathname.split("/");
+  returnPath = returnPath.slice(0, returnPath.indexOf(`/info`) - 1).join("/");
   const vanish = useClickout(returnPath);
 
   useEffect(() => {

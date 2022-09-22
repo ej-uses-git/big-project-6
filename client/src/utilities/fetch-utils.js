@@ -1,8 +1,6 @@
 const FileNotFound = new Error("File Not Found");
-const BadRequest = new Error("Bad Request");
 
 async function getData(path, type) {
-  console.log(path);
   let data;
   switch (type) {
     case "json":
@@ -14,8 +12,6 @@ async function getData(path, type) {
     case "":
       data = await _getJSON(path);
       return data;
-    default:
-      return BadRequest;
   }
 }
 
@@ -55,6 +51,22 @@ async function postJSON(path, newName) {
   }
 }
 
+async function postFile(path, input, type) {
+  try {
+    let body = input;
+    if (type === "txt") body = JSON.stringify(input);
+    const res = await fetch(path, {
+      method: "POST",
+      body,
+      headers: new Headers({ "Content-type": "application/json" }),
+    });
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    return error;
+  }
+}
+
 async function renameFile(path, newName) {
   try {
     const res = await fetch(path, {
@@ -79,4 +91,4 @@ async function deleteFile(path) {
   }
 }
 
-export { getData, postJSON, renameFile, deleteFile };
+export { getData, postJSON, renameFile, deleteFile, postFile };

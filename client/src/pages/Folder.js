@@ -4,19 +4,27 @@ import {
   getData,
   postJSON,
   renameFile,
+  postFile,
 } from "../utilities/fetch-utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Outlet, useNavigate, useResolvedPath } from "react-router-dom";
 import ContextMenu from "../components/ContextMenu";
 import DeleteConfirm from "../components/DeleteConfirm";
 import NewName from "../components/NewName";
+import FileInfo from "./FileInfo";
+import FileDisplay from "./FileDisplay";
+import cache from "../utilities/cache.json";
+import CreateFile from "../components/CreateFile";
 
 function Folder() {
   const navigate = useNavigate();
   const { pathname } = useResolvedPath();
-  useEffect(() => {
-  }, []);
 
+  const folderContent = useRef(cache);
+
+  const [showInfo, setShowInfo] = useState();
+  const [showDisplay, setShowDisplay] = useState();
+  const [showCreate, setShowCreate] = useState();
   const [fileData, setFileData] = useState([]);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [showMenu, setShowMenu] = useState(false);
@@ -25,6 +33,7 @@ function Folder() {
   const [deleteState, setDeleteState] = useState({ active: false, confirm: 0 });
   const [renameState, setRenameState] = useState({ active: false, name: "" });
   const [copyState, setCopyState] = useState({ active: false, name: "" });
+  const [createState, setCreateState] = useState({ active: false, body: {} });
 
   const handleContextMenu = useCallback(
     (event) => {
@@ -42,9 +51,11 @@ function Folder() {
     let data, newName;
     switch (title) {
       case "info":
-        return navigate(`${hasContext}/info`);
+        setShowInfo(true);
+        return navigate(`${pathname}/${hasContext}/info`);
       case "show":
-        return navigate(`${hasContext}`);
+        setShowDisplay(true);
+        return navigate(`${pathname}/${hasContext}`);
       case "rename":
         setRenameState({ active: true, name: "" });
         break;
@@ -75,18 +86,35 @@ function Folder() {
   });
 
   useEffect(() => {
+    const afterPeriod = pathname.split(".");
+    setShowDisplay(afterPeriod.length > 1);
+    setShowInfo(pathname.endsWith("info"));
+    setCreateState({
+      active: pathname.endsWith("info") && afterPeriod.length <= 1,
+      body: {},
+    });
+  }, [pathname]);
+
+  useEffect(() => {
+    if (showDisplay || showInfo) return;
     (async () => {
-      const data = await getData(getURL(pathname), "json");
-      // const data = ["app.js", "examples", "b.txt"];
-      setFileData(data);
+      try {
+        setFileData([]);
+        const data = await getData(getURL(pathname), "json");
+        setFileData(data);
+        folderContent.current = data;
+      } catch (error) {
+        navigate("/error");
+      }
     })();
-  }, []);
+  }, [pathname, showDisplay, showInfo]);
 
   useEffect(() => {
     if (!deleteState.confirm) return;
     (async () => {
       const data = await deleteFile(`${getURL(pathname)}/${hasContext}`);
       setFileData(data);
+      folderContent.current = data;
     })();
   }, [deleteState.confirm]);
 
@@ -99,6 +127,7 @@ function Folder() {
         renameState.name + (fileType ? `.${fileType}` : "")
       );
       setFileData(data);
+      folderContent.current = data;
     })();
   }, [renameState.name]);
 
@@ -110,8 +139,24 @@ function Folder() {
         copyState.name
       );
       setFileData(data);
+      folderContent.current = data;
     })();
   }, [copyState.name]);
+
+  useEffect(() => {
+    if (!createState.body.type) return;
+    (async () => {
+      const data = await postFile(
+        `${getURL(pathname)}/${createState.body.newName}.${
+          createState.body.type
+        }`,
+        createState.body.content,
+        createState.body.type
+      );
+      setFileData(data);
+      folderContent.current = data;
+    })();
+  }, [createState.body]);
 
   const fileNames = formatNames(fileData);
   return (
@@ -124,42 +169,53 @@ function Folder() {
         />
       )}
 
-      <div className="folder-display">
-        <div className="folder-title">Welcome, Joen! Here is your folder.</div>
+      {!showDisplay && !showInfo && (
+        <div className="folder-display">
+          <div className="folder-title">
+            Welcome, Joen! Here is your folder.
+          </div>
 
-        <div className="table-holder">
-          <table className="folder-contents">
-            <thead className="folder-headings">
-              <tr>
-                <th className="name-head">Name</th>
-                <th className="type-head">Type</th>
-              </tr>
-            </thead>
-            <tbody className="folder-files">
-              {fileNames.map((file, i) => (
-                <tr key={file} className="folder-file">
-                  {file.map((text) => (
-                    <td
-                      title={fileData[i]}
-                      key={file + "--" + text}
-                      className={selected === fileData[i] ? "selected" : ""}
-                      onClick={(e) => {
-                        if (selected === fileData[i]) {
-                          return navigate(`${fileData[i]}`);
-                        }
-                        setSelected(fileData[i]);
-                      }}
-                      onContextMenu={handleContextMenu}
-                    >
-                      {text}
-                    </td>
-                  ))}
+          <div className="table-holder">
+            <table className="folder-contents">
+              <thead className="folder-headings">
+                <tr>
+                  <th className="name-head">Name</th>
+                  <th className="type-head">Type</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="folder-files">
+                {fileNames.map((file, i) => (
+                  <tr key={file} className="folder-file">
+                    {file.map((text) => (
+                      <td
+                        title={fileData[i]}
+                        key={file + "--" + text}
+                        className={selected === fileData[i] ? "selected" : ""}
+                        onClick={(e) => {
+                          if (selected === fileData[i]) {
+                            setShowDisplay(true);
+                            return navigate(`${pathname}/${fileData[i]}`);
+                          }
+                          setSelected(fileData[i]);
+                        }}
+                        onContextMenu={handleContextMenu}
+                      >
+                        {text}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
+
+      {!createState.active && (
+        <button onClick={() => setCreateState({ active: true, body: {} })}>
+          Create new file
+        </button>
+      )}
 
       {deleteState.active && (
         <DeleteConfirm
@@ -193,9 +249,25 @@ function Folder() {
         />
       )}
 
-      <Outlet />
+      {createState.active && (
+        <CreateFile
+          onSubmit={(value) => setCreateState({ active: false, body: value })}
+          onClickout={() => {
+            setCreateState({ active: false, body: "" });
+          }}
+        />
+      )}
+
+      {showInfo && <FileInfo />}
+
+      {showDisplay && <FileDisplay />}
     </div>
   );
 }
 
 export default Folder;
+
+/* 
+<Route index element={<NavigateDatatype />} />
+<Route path="info" element={<FileInfo />} />
+*/
