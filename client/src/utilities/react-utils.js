@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function useClickout(setter) {
+function useClickout(returnPath, setter) {
   const navigate = useNavigate();
   const [vanish, setVanish] = useState(false);
   const handleClick = useCallback(async (e) => {
@@ -14,7 +14,7 @@ function useClickout(setter) {
         }, 400);
       });
     })();
-    if (!setter) return navigate("../");
+    if (!setter) return navigate(returnPath);
     setter(false);
   }, []);
 

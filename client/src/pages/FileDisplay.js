@@ -1,29 +1,30 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useResolvedPath } from "react-router-dom";
 import { getData } from "../utilities/fetch-utils";
-import { SERVER_URL } from "../utilities/folder-utils";
+import { getURL } from "../utilities/folder-utils";
 import { useClickout } from "../utilities/react-utils";
 
 function FileDisplay() {
   const navigate = useNavigate();
-  const { file } = useParams();
+  const { pathname } = useResolvedPath();
+  const filename = pathname.split("/")[pathname.split("/").length - 1];
 
   const [fileContent, setFileContent] = useState("");
 
-  const vanish = useClickout();
+  const vanish = useClickout("../");
 
   useEffect(() => {
     (async () => {
       try {
-        const fileType = file.split(".")[1];
-        const data = await getData(`${SERVER_URL}/${file}`, fileType);
+        const fileType = filename.split(".")[1];
+        const data = await getData(`${getURL(pathname)}`, fileType);
         if (data instanceof Error) throw data;
         setFileContent(data);
       } catch (error) {
         navigate("/error");
       }
     })();
-  }, [file]);
+  }, [filename]);
 
   return (
     <div className={"file-display" + (vanish ? " disappear" : "")}>

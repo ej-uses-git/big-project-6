@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useClickout } from "../utilities/react-utils";
 
 function NewName(props) {
-  const vanish = useClickout(props.onClickout);
+  const vanish = useClickout("", props.onClickout);
 
   const [newName, setNewName] = useState("");
 

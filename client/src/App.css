@@ -65,6 +65,7 @@ body {
 }
 
 .table-holder {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -87,7 +88,9 @@ body {
 }
 
 table {
-  margin-top: 5vw;
+  width: 40vw;
+  position: absolute;
+  top: 3vw;
   background-color: var(--minor-one);
   padding: 1vw;
 }
@@ -151,6 +154,7 @@ th:hover,
   border: 0.1vw solid var(--main);
   box-shadow: 0 0 10px 0 var(--off-white);
   transition: opacity 0.5s linear;
+  z-index: 1000;
 }
 
 .option {

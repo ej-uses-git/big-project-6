@@ -2,6 +2,7 @@ const FileNotFound = new Error("File Not Found");
 const BadRequest = new Error("Bad Request");
 
 async function getData(path, type) {
+  console.log(path);
   let data;
   switch (type) {
     case "json":
@@ -9,6 +10,9 @@ async function getData(path, type) {
       return data;
     case "txt":
       data = await _getText(path);
+      return data;
+    case "":
+      data = await _getJSON(path);
       return data;
     default:
       return BadRequest;

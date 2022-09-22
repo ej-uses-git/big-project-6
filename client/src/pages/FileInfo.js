@@ -1,28 +1,30 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useResolvedPath } from "react-router-dom";
 import { getData } from "../utilities/fetch-utils";
-import { SERVER_URL } from "../utilities/folder-utils";
+import { getURL } from "../utilities/folder-utils";
 import { useClickout } from "../utilities/react-utils";
 
 function FileInfo() {
   const navigate = useNavigate();
+  const { pathname } = useResolvedPath();
 
   const [fileInfo, setFileInfo] = useState({});
-  const { file } = useParams();
+  const { filename } = useParams();
 
-  const vanish = useClickout();
+  const returnPath = pathname.slice(0, pathname.indexOf(`/${filename}`));
+  const vanish = useClickout(returnPath);
 
   useEffect(() => {
     (async () => {
       try {
-        const data = await getData(`${SERVER_URL}/info/${file}`, "json");
+        const data = await getData(`${getURL(pathname)}`, "json");
         if (data instanceof Error) throw data;
         setFileInfo(data);
       } catch (error) {
         navigate("/error");
       }
     })();
-  }, [file]);
+  }, [filename]);
 
   return (
     <div className={"file-info" + (vanish ? " disappear" : "")}>

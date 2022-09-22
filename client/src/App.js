@@ -10,11 +10,10 @@ function App() {
       <Routes>
         <Route path="/users">
           <Route index element={<Navigate to="joen" />} />
-          <Route path="joen">
-            <Route index element={<Navigate to="main" />} />
-            <Route path=":folderId" element={<Folder />}>
-              <Route path="info/:file" element={<FileInfo />} />
-              <Route path=":file" element={<FileDisplay />} />
+          <Route path=":folderId" element={<Folder />}>
+            <Route path=":filename">
+              <Route path="info" element={<FileInfo />} />
+              <Route index element={<FileDisplay />} />
             </Route>
           </Route>
         </Route>

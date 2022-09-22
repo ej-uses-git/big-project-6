@@ -1,4 +1,4 @@
-import { formatNames, SERVER_URL } from "../utilities/folder-utils";
+import { formatNames, getURL } from "../utilities/folder-utils";
 import {
   deleteFile,
   getData,
@@ -6,14 +6,16 @@ import {
   renameFile,
 } from "../utilities/fetch-utils";
 import { useCallback, useEffect, useState } from "react";
-import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { Outlet, useNavigate, useResolvedPath } from "react-router-dom";
 import ContextMenu from "../components/ContextMenu";
 import DeleteConfirm from "../components/DeleteConfirm";
 import NewName from "../components/NewName";
 
 function Folder() {
   const navigate = useNavigate();
-  const { folderId } = useParams();
+  const { pathname } = useResolvedPath();
+  useEffect(() => {
+  }, []);
 
   const [fileData, setFileData] = useState([]);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
@@ -40,7 +42,7 @@ function Folder() {
     let data, newName;
     switch (title) {
       case "info":
-        return navigate(`info/${hasContext}`);
+        return navigate(`${hasContext}/info`);
       case "show":
         return navigate(`${hasContext}`);
       case "rename":
@@ -52,7 +54,7 @@ function Folder() {
       case "copy":
         //TODO
         setCopyState({ active: true, name: "" });
-        data = await postJSON(`${SERVER_URL}/${hasContext}`, newName);
+        data = await postJSON(`${getURL(pathname)}/${hasContext}`, newName);
         break;
     }
   };
@@ -74,7 +76,7 @@ function Folder() {
 
   useEffect(() => {
     (async () => {
-      const data = await getData(SERVER_URL, "json");
+      const data = await getData(getURL(pathname), "json");
       // const data = ["app.js", "examples", "b.txt"];
       setFileData(data);
     })();
@@ -83,7 +85,7 @@ function Folder() {
   useEffect(() => {
     if (!deleteState.confirm) return;
     (async () => {
-      const data = await deleteFile(`${SERVER_URL}/${hasContext}`);
+      const data = await deleteFile(`${getURL(pathname)}/${hasContext}`);
       setFileData(data);
     })();
   }, [deleteState.confirm]);
@@ -93,8 +95,8 @@ function Folder() {
     const fileType = hasContext.split(".")[1] || "";
     (async () => {
       const data = await renameFile(
-        `${SERVER_URL}/${hasContext}`,
-        renameState.name + "." + fileType
+        `${getURL(pathname)}/${hasContext}`,
+        renameState.name + (fileType ? `.${fileType}` : "")
       );
       setFileData(data);
     })();
@@ -104,7 +106,7 @@ function Folder() {
     if (!copyState.name) return;
     (async () => {
       const data = await postJSON(
-        `${SERVER_URL}/${hasContext}`,
+        `${getURL(pathname)}/${hasContext}`,
         copyState.name
       );
       setFileData(data);
@@ -123,9 +125,7 @@ function Folder() {
       )}
 
       <div className="folder-display">
-        <div className="folder-title">
-          Welcome, Joen! Here is your {folderId} folder.
-        </div>
+        <div className="folder-title">Welcome, Joen! Here is your folder.</div>
 
         <div className="table-holder">
           <table className="folder-contents">
@@ -144,8 +144,9 @@ function Folder() {
                       key={file + "--" + text}
                       className={selected === fileData[i] ? "selected" : ""}
                       onClick={(e) => {
-                        if (selected === fileData[i])
+                        if (selected === fileData[i]) {
                           return navigate(`${fileData[i]}`);
+                        }
                         setSelected(fileData[i]);
                       }}
                       onContextMenu={handleContextMenu}
