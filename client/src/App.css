@@ -1,3 +1,13 @@
+/* css variables */
+:root {
+  --main: #5d4954ff;
+  --second: #e6dbd0ff;
+  --minor-one: #538083ff;
+  --minor-two: #b10f2e;
+  --off-white: #f9e0d9ff;
+}
+
+/* general styles */
 * {
   box-sizing: border-box;
 
@@ -5,8 +15,10 @@
   padding: 0;
 
   text-align: center;
+  font-size: 1.2vw;
 }
 
+/* body and app */
 body {
   width: 100vw;
   min-height: 100vh;
@@ -16,6 +28,8 @@ body {
   align-items: center;
 
   gap: 1.5vw;
+
+  background-color: var(--off-white);
 }
 
 .folder {
@@ -26,44 +40,183 @@ body {
   gap: 1.5vw;
 }
 
-td,
-th {
-  border: 0.1vw solid black;
-  width: 10vw;
-  height: 5vw;
+/* folder table */
+.folder-display {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+
+  width: 50vw;
+  height: 90vh;
 }
 
-.menu {
-  font-size: 14px;
-  background-color: #fff;
-  border-radius: 2px;
-  padding: 5px 0 5px 0;
-  width: 150px;
-  height: 150px;
-  margin: 0;
-  /* use absolute positioning  */
-  position: absolute;
-  list-style: none;
-  box-shadow: 0 0 20px 0 #ccc;
-  opacity: 1;
-  transition: opacity 0.5s linear;
-}
-
-.file-info,
-.file-display {
+.folder-title {
+  font-size: 1.4vw;
+  font-weight: bold;
   display: flex;
   justify-content: center;
   align-items: center;
-  
+  width: 30vw;
+  height: 5vw;
+  background-color: var(--main);
+  color: white;
+  box-shadow: 0.2vw 0.2vw rgba(0, 0, 0, 0.5);
+}
+
+.table-holder {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 45vw;
+  height: 70vh;
+  padding: 3vw;
+  overflow: auto;
+
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+
+  background-color: var(--main);
+  color: white;
+  box-shadow: 0.2vw 0.2vw rgba(0, 0, 0, 0.5);
+}
+
+.table-holder::-webkit-scrollbar {
+  display: none;
+}
+
+table {
+  width: 40vw;
+  position: absolute;
+  top: 3vw;
+  background-color: var(--minor-one);
+  padding: 1vw;
+}
+
+.name-head {
+  width: 30vw;
+}
+
+tbody:before {
+  content: "@";
+  display: block;
+  line-height: 1vw;
+  text-indent: -99999px;
+}
+
+th {
+  background-color: var(--main);
+  box-shadow: 0.2vw 0.2vw rgba(0, 0, 0, 0.5);
+}
+
+td {
+  background-color: var(--off-white);
+  color: black;
+}
+
+td,
+th {
+  border: 0.1vw solid var(--main);
+  width: 10vw;
+  height: 5vw;
+  user-select: none;
+}
+
+td:hover,
+th:hover,
+.menu:hover {
+  cursor: context-menu;
+}
+
+.selected,
+.option:hover {
+  background-color: var(--minor-two);
+}
+
+.selected {
+  box-shadow: 0 0 0.3vw 0.15vw rgba(0, 0, 0, 0.5);
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  font-size: 14px;
+  background-color: var(--off-white);
+  border-radius: 2px;
+  width: 10vw;
+  height: 15vw;
+  position: absolute;
+  list-style: none;
+  border: 0.1vw solid var(--main);
+  box-shadow: 0 0 10px 0 var(--off-white);
+  transition: opacity 0.5s linear;
+  z-index: 1000;
+}
+
+.option {
+  height: 3vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.file-info,
+.file-display,
+.delete-confirm,
+.new-name,
+.create-file {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   gap: 1.5vw;
   position: absolute;
-  width: 30vw;
+  padding: 3vw;
+  width: 40vw;
   height: 80vh;
-  background-color: black;
-  color: white;
-  box-shadow: 0 0 1000000px 30vh gray;
+  background-color: var(--main);
+  color: var(--off-white);
+  box-shadow: 0 0 30vh 30vh var(--minor-one);
   opacity: 0;
-  animation: appear 0.5s linear 0.1s 1 forwards;
+  animation: appear 0.2s linear 0.1s 1 forwards;
+}
+
+#delete-confirm,
+#new-name {
+  width: 30vw;
+  height: 70vh;
+}
+
+.pair {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 5vw;
+}
+
+.key {
+  font-weight: bold;
+}
+
+.value {
+  text-align: end;
+}
+
+.disappear {
+  animation: disappear 0.3s linear 0s 1 forwards;
+}
+
+@keyframes disappear {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 @keyframes appear {

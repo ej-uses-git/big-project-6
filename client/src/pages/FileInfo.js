@@ -1,33 +1,39 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { getJSON } from "../utilities/fetch-utils";
-
-const _SERVER_URL = "http://10.0.0.55:3000/users/joen";
+import { useNavigate, useParams, useResolvedPath } from "react-router-dom";
+import { getData } from "../utilities/fetch-utils";
+import { getURL } from "../utilities/folder-utils";
+import { useClickout } from "../utilities/react-utils";
 
 function FileInfo() {
   const navigate = useNavigate();
+  const { pathname } = useResolvedPath();
 
-  const [fileInfo, setFileInfo] = useState({ Bob: "The builder" });
-  const { file } = useParams();
+  const [fileInfo, setFileInfo] = useState({});
+  const { filename } = useParams();
+
+  let returnPath = pathname.split("/");
+  returnPath = returnPath.slice(0, returnPath.indexOf(`/info`) - 1).join("/");
+  const vanish = useClickout(returnPath);
 
   useEffect(() => {
     (async () => {
       try {
-        const data = await getJSON(`${_SERVER_URL}/info/${file}`);
+        const data = await getData(`${getURL(pathname)}`, "json");
         if (data instanceof Error) throw data;
         setFileInfo(data);
       } catch (error) {
         navigate("/error");
       }
     })();
-  }, [file]);
+  }, [filename]);
 
   return (
-    <div className="file-info">
+    <div className={"file-info" + (vanish ? " disappear" : "")}>
       <ul className="info-list">
         {Object.keys(fileInfo).map((key) => (
-          <div key={key}>
-            {key}: {fileInfo[key]}
+          <div className="pair" key={key + "-" + fileInfo[key]}>
+            <div className="key">{key}:</div>
+            <div className="value">{fileInfo[key]}</div>
           </div>
         ))}
       </ul>

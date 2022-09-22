@@ -1,29 +1,38 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { getText } from "../utilities/fetch-utils";
-const _SERVER_URL = "http://10.0.0.55:3000/users/joen";
+import { useNavigate, useParams, useResolvedPath } from "react-router-dom";
+import { getData } from "../utilities/fetch-utils";
+import { getURL } from "../utilities/folder-utils";
+import { useClickout } from "../utilities/react-utils";
 
 function FileDisplay() {
   const navigate = useNavigate();
+  const { pathname } = useResolvedPath();
+  const filename = pathname.split("/")[pathname.split("/").length - 1];
 
   const [fileContent, setFileContent] = useState("");
-  const { file } = useParams();
+
+  const vanish = useClickout("../");
 
   useEffect(() => {
     (async () => {
       try {
-        const data = await getText(`${_SERVER_URL}/${file}`);
+        const fileType = filename.split(".")[1];
+        const data = await getData(`${getURL(pathname)}`, fileType);
         if (data instanceof Error) throw data;
         setFileContent(data);
       } catch (error) {
-        navigate("/error");
+        console.log(error.message);
       }
     })();
-  }, [file]);
+  }, [filename]);
 
   return (
-    <div className="file-display">
-      <ul className="info-list">{fileContent}</ul>
+    <div className={"file-display" + (vanish ? " disappear" : "")}>
+      <ul className="info-list">
+        {typeof fileContent === "string"
+          ? fileContent
+          : JSON.stringify(fileContent)}
+      </ul>
     </div>
   );
 }

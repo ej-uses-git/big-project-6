@@ -106,8 +106,7 @@ router.delete("/:user/*", async (req, res, next) => {
   } catch (error) {
     console.error("there was an error:", error.message);
   }
-  // res.redirect(200, "/users/user");
-  const files = await fs.readdir(`users/${user}`);
+  const files = await fs.readdir("users/joen");
   res.json(files);
 });
 
