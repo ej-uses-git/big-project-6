@@ -260,6 +260,7 @@ function Folder() {
           }}
           onClickout={() => {
             setCreateState({ active: false, body: "" });
+            setShowCreate(false);
           }}
         />
       )}

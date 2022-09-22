@@ -227,3 +227,32 @@ th:hover,
     opacity: 1;
   }
 }
+
+input {
+  width: 10vw;
+  height: 2vw;
+  outline: none;
+  margin-left: 1vw;
+  margin-bottom: 2vw;
+}
+
+textarea {
+  resize: none;
+  width: 30vw;
+  height: 10vw;
+  margin-bottom: 2vw;
+}
+
+button {
+  width: 8vw;
+  height: 3vw;
+  background-color: var(--minor-one);
+  box-shadow: 0.1vw 0.1vw 0.1vw 0 var(--minor-two);
+}
+
+button:hover {
+  cursor: pointer;
+  transform: translateY(-0.1vw);
+  background-color: var(--minor-two);
+  box-shadow: 0.1vw 0.1vw 0.1vw 0 var(--minor-one);
+}
