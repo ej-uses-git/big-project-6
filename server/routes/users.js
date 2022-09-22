@@ -7,6 +7,7 @@ var router = express.Router();
 var StringDecoder = require("string_decoder").StringDecoder;
 var decoder = new StringDecoder("utf8");
 var path = require("path");
+var { constants } = require("fs");
 // #endregion
 
 //#region const varibles
@@ -48,7 +49,7 @@ router.get("/joen/:filename", async (req, res, next) => {
 });
 
 /* GET info functionallity. url: /users/joen/info/*filename* */
-router.get("/joen/info/:filename", async (req, res, next) => {
+router.get("/joen/:filename/info", async (req, res, next) => {
   // console.log(req.params.filename);
   const name = req.params.filename;
   const cleanName = name.split(".")[0];
@@ -92,7 +93,6 @@ router.delete("/joen/:filename", async (req, res, next) => {
   } catch (error) {
     console.error("there was an error:", error.message);
   }
-  // console.log("jhbfsk");
   // res.redirect(200, "/users/joen");
   const files = await fs.readdir("users/joen");
   res.json(files);
@@ -100,24 +100,52 @@ router.delete("/joen/:filename", async (req, res, next) => {
 
 /* PUT rename functionallity. url: /users/joen/*filename* */
 router.put("/joen/:filename", async (req, res, next) => {
-  const newName = req.body.newName;
-  console.log(newName);
-  const oldName = req.params.filename;
-  await fs.rename(`users/joen/${oldName}`, `users/joen/${newName}`);
+  const newNamePath = `users/joen/${req.body.newName}`;
+  const originalNamePath = `users/joen/${req.params.filename}`;
+  const stats = await fs.stat(originalNamePath);
+  if (stats.isDirectory()) {
+    await fs.cp(originalNamePath, newNamePath, {
+      recursive: true,
+    });
+    await fs.rmdir(originalNamePath, {
+      recursive: true,
+    });
+  } else await fs.rename(originalNamePath, newNamePath);
   const files = await fs.readdir("users/joen");
   res.json(files);
 });
 
-/* POST copy functionallity. url: /users/joen/*filename* */
+/* POST copy functionallity. url: /users/joen/*filename*
+ if filename exist - copy operation
+ else add new file */
 router.post("/joen/:filename", async (req, res, next) => {
-  const newName = req.body.newName;
-  console.log(newName);
-  const originalName = req.params.filename;
-  // try {
-  await fs.copyFile(`users/joen/${originalName}`, `users/joen/${newName}`);
-  // } catch {
-  //   console.log("The file could not be copied");
-  // }
+  const filename = req.params.filename;
+  const newNamePath = `users/joen/${req.body.newName}`;
+  const originalNamePath = `users/joen/${filename}`;
+
+  try {
+    await fs.access(
+      path.join(__dirname, `../${originalNamePath}`),
+      constants.F_OK
+    );
+
+    const stats = await fs.stat(originalNamePath);
+    if (stats.isDirectory()) {
+      await fs.cp(originalNamePath, newNamePath, {
+        recursive: true,
+      });
+    } else await fs.copyFile(originalNamePath, newNamePath);
+  } catch (error) {
+    if (filename.includes("."))
+      await fs.writeFile(originalNamePath, req.body.content);
+    else await mkdir(originalNamePath, { recursive: true });
+
+    // console.log("got new file, filepath", originalNamePath);
+
+    // The check failed
+    // console.log(path.join(__dirname, `../${originalNamePath}`));
+  }
+
   const files = await fs.readdir("users/joen");
   res.json(files);
 });
